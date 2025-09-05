@@ -49,6 +49,19 @@ To run all unit tests:
 npm test
 ```
 
+### Building and Running the Project
+
+To build the TypeScript files and run the main logic:
+
+```sh
+npm run build
+npm start
+```
+
+This will compile the TypeScript code and execute the output in `dist/flight.js` using Node.js.
+
+You can modify `src/flight.ts` to change the main logic or output.
+
 ## Project Files
 
 - `src/flight.ts`: Flight model and logic
