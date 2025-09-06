@@ -1,20 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Flight = exports.FlightPhase = void 0;
-const airspace_1 = require("./airspace");
-var FlightPhase;
-(function (FlightPhase) {
-    FlightPhase["PRE_DEPARTURE"] = "PRE_DEPARTURE";
-    FlightPhase["TAXIING_OUT"] = "TAXIING_OUT";
-    FlightPhase["TAKEOFF"] = "TAKEOFF";
-    FlightPhase["CLIMBING"] = "CLIMBING";
-    FlightPhase["CRUISING"] = "CRUISING";
-    FlightPhase["DESCENDING"] = "DESCENDING";
-    FlightPhase["APPROACH"] = "APPROACH";
-    FlightPhase["LANDING"] = "LANDING";
-    FlightPhase["TAXIING_IN"] = "TAXIING_IN";
-    FlightPhase["ARRIVED"] = "ARRIVED";
-})(FlightPhase || (exports.FlightPhase = FlightPhase = {}));
+exports.Flight = void 0;
+const types_1 = require("../types");
+const coordinate_1 = require("./coordinate");
 class Flight {
     constructor(arrivalAerodrome, arrivalTime, departureAerodrome, departureTime, departureCoordinates, arrivalCoordinates) {
         this.currentLocation = null;
@@ -84,13 +72,13 @@ class Flight {
         if (now < this.departureTime) {
             return {
                 coordinates: this.departureCoordinates,
-                phase: FlightPhase.PRE_DEPARTURE,
+                phase: types_1.FlightPhase.PRE_DEPARTURE,
             };
         }
         if (now > this.arrivalTime) {
             return {
                 coordinates: this.arrivalCoordinates,
-                phase: FlightPhase.ARRIVED,
+                phase: types_1.FlightPhase.ARRIVED,
             };
         }
         const totalFlightTime = this.arrivalTime.getTime() - this.departureTime.getTime();
@@ -104,18 +92,18 @@ class Flight {
                 this.departureCoordinates.longitude) *
                 progress;
         let altitude = 0;
-        let phase = FlightPhase.CRUISING;
+        let phase = types_1.FlightPhase.CRUISING;
         if (progress < 0.1) {
             altitude = progress * 10 * 35000;
-            phase = FlightPhase.CLIMBING;
+            phase = types_1.FlightPhase.CLIMBING;
         }
         else if (progress > 0.9) {
             altitude = (1 - progress) * 10 * 35000;
-            phase = FlightPhase.DESCENDING;
+            phase = types_1.FlightPhase.DESCENDING;
         }
         else {
             altitude = 35000;
-            phase = FlightPhase.CRUISING;
+            phase = types_1.FlightPhase.CRUISING;
         }
         const remainingTimeInMinutes = (this.arrivalTime.getTime() - now.getTime()) / (1000 * 60);
         return {
@@ -135,7 +123,7 @@ class Flight {
      */
     getCurrentCoordinate() {
         const location = this.currentLocation || this.getEstimatedLocation();
-        return new airspace_1.Coordinate(location.coordinates.longitude, location.coordinates.latitude);
+        return new coordinate_1.Coordinate(location.coordinates.longitude, location.coordinates.latitude);
     }
     /**
      * Determines if this flight is currently within the specified airspace.
@@ -166,11 +154,11 @@ class Flight {
     isAirborne() {
         const location = this.currentLocation || this.getEstimatedLocation();
         return [
-            FlightPhase.TAKEOFF,
-            FlightPhase.CLIMBING,
-            FlightPhase.CRUISING,
-            FlightPhase.DESCENDING,
-            FlightPhase.APPROACH,
+            types_1.FlightPhase.TAKEOFF,
+            types_1.FlightPhase.CLIMBING,
+            types_1.FlightPhase.CRUISING,
+            types_1.FlightPhase.DESCENDING,
+            types_1.FlightPhase.APPROACH,
         ].includes(location.phase);
     }
     /**
@@ -182,29 +170,29 @@ class Flight {
         var _a;
         const location = this.currentLocation || this.getEstimatedLocation();
         switch (location.phase) {
-            case FlightPhase.PRE_DEPARTURE:
+            case types_1.FlightPhase.PRE_DEPARTURE:
                 return `At ${this.departureAerodrome}, scheduled to depart`;
-            case FlightPhase.TAXIING_OUT:
+            case types_1.FlightPhase.TAXIING_OUT:
                 return `Taxiing out at ${this.departureAerodrome}`;
-            case FlightPhase.TAKEOFF:
+            case types_1.FlightPhase.TAKEOFF:
                 return `Taking off from ${this.departureAerodrome}`;
-            case FlightPhase.CLIMBING:
+            case types_1.FlightPhase.CLIMBING:
                 return `Climbing after departure from ${this.departureAerodrome}`;
-            case FlightPhase.CRUISING:
+            case types_1.FlightPhase.CRUISING:
                 const distance = this.getDistanceToDestination();
                 return (`Cruising ${((_a = location.coordinates.altitude) === null || _a === void 0 ? void 0 : _a.toFixed(0)) || "unknown"} feet` +
                     (distance
                         ? `, ${distance.toFixed(0)}nm from ${this.arrivalAerodrome}`
                         : ""));
-            case FlightPhase.DESCENDING:
+            case types_1.FlightPhase.DESCENDING:
                 return `Descending towards ${this.arrivalAerodrome}`;
-            case FlightPhase.APPROACH:
+            case types_1.FlightPhase.APPROACH:
                 return `On approach to ${this.arrivalAerodrome}`;
-            case FlightPhase.LANDING:
+            case types_1.FlightPhase.LANDING:
                 return `Landing at ${this.arrivalAerodrome}`;
-            case FlightPhase.TAXIING_IN:
+            case types_1.FlightPhase.TAXIING_IN:
                 return `Taxiing in at arrival airport ${this.arrivalAerodrome}`;
-            case FlightPhase.ARRIVED:
+            case types_1.FlightPhase.ARRIVED:
                 return `Arrived at ${this.arrivalAerodrome}`;
             default:
                 return "Status unknown";
@@ -233,48 +221,3 @@ class Flight {
     }
 }
 exports.Flight = Flight;
-const arrivalAerodrome = "JFK";
-const arrivalTime = new Date("2025-01-01T14:00:00Z");
-const departureAerodrome = "LAX";
-const departureTime = new Date("2025-01-01T10:00:00Z");
-const departureCoordinates = {
-    latitude: 33.9425,
-    longitude: -118.4081,
-};
-const arrivalCoordinates = {
-    latitude: 40.6413,
-    longitude: -73.7781,
-};
-const flight = new Flight(arrivalAerodrome, arrivalTime, departureAerodrome, departureTime, departureCoordinates, arrivalCoordinates);
-// Problem 1
-flight.updateLocation({
-    coordinates: { latitude: 39.0, longitude: -95.0, altitude: 35000 },
-    phase: FlightPhase.CRUISING,
-    groundSpeed: 450,
-    heading: 75,
-    estimatedTimeToDestination: 120,
-});
-console.log("Problem 1 - Flight Location:");
-console.log(`Current location: ${flight.getLocationDescription()}`);
-console.log(`Coordinates: Lat ${flight.getCurrentCoordinate().getY()}, Lng ${flight
-    .getCurrentCoordinate()
-    .getX()}`);
-console.log(`Distance to destination: ${flight.getDistanceToDestination()} nm`);
-console.log(`Is airborne: ${flight.isAirborne()}`);
-// Problem 2: Determine if flight is within airspace
-// Define US Central airspace (simplified rectangular boundary)
-const centralAirspace = new airspace_1.Airspace(new airspace_1.Coordinate(-105.0, 35.0), // Bottom left (longitude, latitude)
-new airspace_1.Coordinate(-90.0, 42.0) // Top right (longitude, latitude)
-);
-console.log("\nProblem 2 - Airspace Detection:");
-console.log(`Flight is in Central US airspace: ${flight.isInAirspace(centralAirspace)}`);
-// Alternative methods for airspace checking
-console.log(`Airspace contains flight: ${centralAirspace.flightIsInAirspace(flight)}`);
-console.log(`Airspace contains coordinate: ${centralAirspace.contains(flight.getCurrentCoordinate())}`);
-// Test with different location
-flight.updateLocation({
-    coordinates: { latitude: 50.0, longitude: -100.0, altitude: 35000 }, // Outside airspace
-    phase: FlightPhase.CRUISING,
-});
-console.log(`\nAfter moving north:`);
-console.log(`Flight is in Central US airspace: ${flight.isInAirspace(centralAirspace)}`);

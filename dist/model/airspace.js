@@ -1,29 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Airspace = exports.Coordinate = void 0;
-class Coordinate {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    /**
-     * Gets the X component of this coordinate (can have values -180 to +180).
-     *
-     * @return the x.
-     */
-    getX() {
-        return this.x;
-    }
-    /**
-     * Gets the Y component of this coordinate (can have values -90 to +90).
-     *
-     * @return the y.
-     */
-    getY() {
-        return this.y;
-    }
-}
-exports.Coordinate = Coordinate;
+exports.Airspace = void 0;
+const coordinate_1 = require("./coordinate");
 class Airspace {
     constructor(bottomLeft, topRight) {
         this.bottomLeft = bottomLeft;
@@ -70,7 +48,7 @@ class Airspace {
         if (!location) {
             return false;
         }
-        const coordinate = new Coordinate(location.coordinates.longitude, location.coordinates.latitude);
+        const coordinate = new coordinate_1.Coordinate(location.coordinates.longitude, location.coordinates.latitude);
         return this.contains(coordinate);
     }
 }

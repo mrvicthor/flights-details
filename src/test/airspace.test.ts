@@ -1,4 +1,5 @@
-import { Airspace, Coordinate } from "../airspace";
+import { Airspace } from "../model/airspace";
+import { Coordinate } from "../model/coordinate";
 
 const bottomLeft = new Coordinate(0, 0);
 const topRight = new Coordinate(10, 10);

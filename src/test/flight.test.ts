@@ -1,5 +1,7 @@
-import { Airspace, Coordinate } from "../airspace";
-import { Flight, Coordinates, FlightPhase, FlightLocation } from "../flight";
+import { Airspace } from "../model/airspace";
+import { Coordinate } from "../model/coordinate";
+import { Flight } from "../model/flight";
+import { Coordinates, FlightLocation, FlightPhase } from "../types";
 
 const arrivalAerodrome = "JFK";
 const arrivalTime = new Date("2025-01-01T14:00:00Z");
