@@ -23,7 +23,7 @@ flight.updateLocation({
     estimatedTimeToDestination: 120,
 });
 console.log("Problem 1 - Flight Location:");
-console.log(`Current location:}`);
+console.log("Current location");
 console.log(`Coordinates: Lat ${(_a = flight.getCurrentLocation()) === null || _a === void 0 ? void 0 : _a.coordinates.latitude}, Lng ${(_b = flight.getCurrentLocation()) === null || _b === void 0 ? void 0 : _b.coordinates.longitude}`);
 // Problem 2: Determine if flight is within airspace
 // Define US Central airspace (simplified rectangular boundary)
