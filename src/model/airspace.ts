@@ -15,7 +15,7 @@ export class Airspace {
    *
    * @return the bottom left.
    */
-  public getBottomLeft(): Coordinate {
+  getBottomLeft(): Coordinate {
     return this.bottomLeft;
   }
 
@@ -24,7 +24,7 @@ export class Airspace {
    *
    * @return the top right.
    */
-  public getTopRight(): Coordinate {
+  getTopRight(): Coordinate {
     return this.topRight;
   }
 
@@ -35,7 +35,7 @@ export class Airspace {
    * @return true if the coordinate is within the airspace boundaries.
    */
 
-  public contains(coordinate: Coordinate): boolean {
+  contains(coordinate: Coordinate): boolean {
     const x = coordinate.getX();
     const y = coordinate.getY();
     return (
@@ -53,7 +53,7 @@ export class Airspace {
    * @return true if the flight is within the airspace boundaries.
    */
 
-  public flightIsInAirspace(flight: Flight): boolean {
+  flightIsInAirspace(flight: Flight): boolean {
     const location = flight.getCurrentLocation();
 
     if (!location) {

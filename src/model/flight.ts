@@ -1,6 +1,5 @@
-import { Coordinates, FlightLocation, FlightPhase } from "../types";
+import { Coordinates, FlightLocation } from "../types";
 import { Airspace } from "./airspace";
-import { Coordinate } from "./coordinate";
 
 export class Flight {
   private readonly arrivalAerodrome: string;
@@ -32,7 +31,7 @@ export class Flight {
    *
    * @return the arrival aerodrome.
    */
-  public getArrivalAerodrome(): string {
+  getArrivalAerodrome(): string {
     return this.arrivalAerodrome;
   }
 
@@ -42,7 +41,7 @@ export class Flight {
    * @return the arrival time.
    */
 
-  public getArrivalTime(): Date {
+  getArrivalTime(): Date {
     return this.arrivalTime;
   }
 
@@ -51,7 +50,7 @@ export class Flight {
    *
    * @return the departure aerodrome.
    */
-  public getDepartureAerodrome(): string {
+  getDepartureAerodrome(): string {
     return this.departureAerodrome;
   }
 
@@ -60,7 +59,7 @@ export class Flight {
    *
    * @return the departure time.
    */
-  public getDepartureTime(): Date {
+  getDepartureTime(): Date {
     return this.departureTime;
   }
 
@@ -70,7 +69,7 @@ export class Flight {
    * @param location The current flight location information.
    */
 
-  public updateLocation(location: FlightLocation): void {
+  updateLocation(location: FlightLocation): void {
     this.currentLocation = location;
   }
 
@@ -79,7 +78,7 @@ export class Flight {
    *
    * @return the current flight location, or null if not available.
    */
-  public getCurrentLocation(): FlightLocation | null {
+  getCurrentLocation(): FlightLocation | null {
     return this.currentLocation;
   }
 
@@ -89,19 +88,17 @@ export class Flight {
    *
    * @return estimated flight location based on scheduled times.
    */
-  public getEstimatedLocation(): FlightLocation {
+  getEstimatedLocation(): FlightLocation {
     const now = new Date();
 
     if (now < this.departureTime) {
       return {
         coordinates: this.departureCoordinates,
-        phase: FlightPhase.PRE_DEPARTURE,
       };
     }
     if (now > this.arrivalTime) {
       return {
         coordinates: this.arrivalCoordinates,
-        phase: FlightPhase.ARRIVED,
       };
     }
     const totalFlightTime =
@@ -119,44 +116,16 @@ export class Flight {
         this.departureCoordinates.longitude) *
         progress;
 
-    let altitude = 0;
-    let phase = FlightPhase.CRUISING;
-
-    if (progress < 0.1) {
-      altitude = progress * 10 * 35000;
-      phase = FlightPhase.CLIMBING;
-    } else if (progress > 0.9) {
-      altitude = (1 - progress) * 10 * 35000;
-      phase = FlightPhase.DESCENDING;
-    } else {
-      altitude = 35000;
-      phase = FlightPhase.CRUISING;
-    }
-
     const remainingTimeInMinutes =
       (this.arrivalTime.getTime() - now.getTime()) / (1000 * 60);
     return {
       coordinates: {
         latitude,
         longitude,
-        altitude,
       },
-      phase,
+
       estimatedTimeToDestination: Math.max(0, remainingTimeInMinutes),
     };
-  }
-
-  /**
-   * Gets the current location or estimated location as a Coordinate object.
-   *
-   * @return the current position as a Coordinate.
-   */
-  public getCurrentCoordinate(): Coordinate {
-    const location = this.currentLocation || this.getEstimatedLocation();
-    return new Coordinate(
-      location.coordinates.longitude,
-      location.coordinates.latitude
-    );
   }
 
   /**
@@ -167,106 +136,5 @@ export class Flight {
    */
   public isInAirspace(airspace: Airspace): boolean {
     return airspace.flightIsInAirspace(this);
-  }
-
-  /**
-   * Calculates the distance from the current location to the destination.
-   *
-   * @return distance to destination in nautical miles, or null if location unavailable.
-   */
-  public getDistanceToDestination(): number | null {
-    const location = this.currentLocation || this.getEstimatedLocation();
-    if (!location) {
-      return null;
-    }
-    return this.calculateDistance(
-      location.coordinates,
-      this.arrivalCoordinates
-    );
-  }
-
-  /**
-   * Checks if the flight is currently airborne.
-   *
-   * @return true if the flight is in the air.
-   */
-  public isAirborne(): boolean {
-    const location = this.currentLocation || this.getEstimatedLocation();
-
-    return [
-      FlightPhase.TAKEOFF,
-      FlightPhase.CLIMBING,
-      FlightPhase.CRUISING,
-      FlightPhase.DESCENDING,
-      FlightPhase.APPROACH,
-    ].includes(location.phase);
-  }
-
-  /**
-   * Gets a human-readable description of the flight's current status.
-   *
-   * @return description of current flight status.
-   */
-  public getLocationDescription(): string {
-    const location = this.currentLocation || this.getEstimatedLocation();
-
-    switch (location.phase) {
-      case FlightPhase.PRE_DEPARTURE:
-        return `At ${this.departureAerodrome}, scheduled to depart`;
-      case FlightPhase.TAXIING_OUT:
-        return `Taxiing out at ${this.departureAerodrome}`;
-      case FlightPhase.TAKEOFF:
-        return `Taking off from ${this.departureAerodrome}`;
-      case FlightPhase.CLIMBING:
-        return `Climbing after departure from ${this.departureAerodrome}`;
-      case FlightPhase.CRUISING:
-        const distance = this.getDistanceToDestination();
-        return (
-          `Cruising ${
-            location.coordinates.altitude?.toFixed(0) || "unknown"
-          } feet` +
-          (distance
-            ? `, ${distance.toFixed(0)}nm from ${this.arrivalAerodrome}`
-            : "")
-        );
-      case FlightPhase.DESCENDING:
-        return `Descending towards ${this.arrivalAerodrome}`;
-      case FlightPhase.APPROACH:
-        return `On approach to ${this.arrivalAerodrome}`;
-      case FlightPhase.LANDING:
-        return `Landing at ${this.arrivalAerodrome}`;
-      case FlightPhase.TAXIING_IN:
-        return `Taxiing in at arrival airport ${this.arrivalAerodrome}`;
-      case FlightPhase.ARRIVED:
-        return `Arrived at ${this.arrivalAerodrome}`;
-      default:
-        return "Status unknown";
-    }
-  }
-
-  /**
-   * Calculates the great circle distance between two coordinates.
-   * Uses the Haversine formula.
-   *
-   * @param coord1 First coordinate.
-   * @param coord2 Second coordinate.
-   * @return distance in nautical miles.
-   */
-  private calculateDistance(coord1: Coordinates, coord2: Coordinates): number {
-    const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
-
-    const R = 3440.065; // Earth radius in nautical miles
-    const dLat = toRadians(coord2.latitude - coord1.latitude);
-    const dLon = toRadians(coord2.longitude - coord1.longitude);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(coord1.latitude)) *
-        Math.cos(toRadians(coord2.latitude)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c;
   }
 }

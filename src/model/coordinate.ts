@@ -12,7 +12,7 @@ export class Coordinate {
    *
    * @return the x.
    */
-  public getX(): number {
+  getX(): number {
     return this.x;
   }
 
@@ -21,7 +21,7 @@ export class Coordinate {
    *
    * @return the y.
    */
-  public getY(): number {
+  getY(): number {
     return this.y;
   }
 }

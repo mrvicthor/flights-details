@@ -1,7 +1,7 @@
 import { Airspace } from "./model/airspace";
 import { Coordinate } from "./model/coordinate";
 import { Flight } from "./model/flight";
-import { Coordinates, FlightPhase } from "./types";
+import { Coordinates } from "./types";
 
 const arrivalAerodrome = "JFK";
 const arrivalTime = new Date("2025-01-01T14:00:00Z");
@@ -28,21 +28,16 @@ const flight = new Flight(
 // Problem 1
 flight.updateLocation({
   coordinates: { latitude: 39.0, longitude: -95.0, altitude: 35000 },
-  phase: FlightPhase.CRUISING,
-  groundSpeed: 450,
-  heading: 75,
   estimatedTimeToDestination: 120,
 });
 
 console.log("Problem 1 - Flight Location:");
-console.log(`Current location: ${flight.getLocationDescription()}`);
+console.log("Current location");
 console.log(
-  `Coordinates: Lat ${flight.getCurrentCoordinate().getY()}, Lng ${flight
-    .getCurrentCoordinate()
-    .getX()}`
+  `Coordinates: Lat ${flight.getCurrentLocation()?.coordinates.latitude}, Lng ${
+    flight.getCurrentLocation()?.coordinates.longitude
+  }`
 );
-console.log(`Distance to destination: ${flight.getDistanceToDestination()} nm`);
-console.log(`Is airborne: ${flight.isAirborne()}`);
 
 // Problem 2: Determine if flight is within airspace
 // Define US Central airspace (simplified rectangular boundary)
@@ -60,16 +55,10 @@ console.log(
 console.log(
   `Airspace contains flight: ${centralAirspace.flightIsInAirspace(flight)}`
 );
-console.log(
-  `Airspace contains coordinate: ${centralAirspace.contains(
-    flight.getCurrentCoordinate()
-  )}`
-);
 
 // Test with different location
 flight.updateLocation({
   coordinates: { latitude: 50.0, longitude: -100.0, altitude: 35000 }, // Outside airspace
-  phase: FlightPhase.CRUISING,
 });
 
 console.log(`\nAfter moving north:`);
