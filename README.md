@@ -6,15 +6,34 @@ A TypeScript project for modeling flight and airspace details, including unit te
 
 ```
 flight-details/
+├── .git/
+├── .gitignore
+├── README.md
+├── dist/
+│   ├── main.js
+│   ├── types.js
+│   ├── model/
+│   │   ├── airspace.js
+│   │   ├── coordinate.js
+│   │   └── flight.js
+│   └── test/
+│       ├── airspace.test.js
+│       └── flight.test.js
 ├── jest.config.js
+├── node_modules/
+├── package-lock.json
 ├── package.json
-├── tsconfig.json
 ├── src/
-│   ├── airspace.ts
-│   ├── flight.ts
+│   ├── main.ts
+│   ├── types.ts
+│   ├── model/
+│   │   ├── airspace.ts
+│   │   ├── coordinate.ts
+│   │   └── flight.ts
 │   └── test/
 │       ├── airspace.test.ts
 │       └── flight.test.ts
+├── tsconfig.json
 ```
 
 ## Features
